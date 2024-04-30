@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  lab_app.api:
+    image: ${DOCKER_REGISTRY-}labappapi
+    build:
+      context: .
+      dockerfile: LAB_APP.API/Dockerfile
