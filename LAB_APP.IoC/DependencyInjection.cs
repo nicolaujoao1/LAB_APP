@@ -19,6 +19,7 @@ namespace LAB_APP.IoC
         {
 
             services.AddScoped<IEscolaService, EscolaService>();
+            services.AddScoped<IExcelService, ExcelService>();
 
             return services;
         }

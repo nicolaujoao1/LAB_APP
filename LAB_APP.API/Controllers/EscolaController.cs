@@ -12,10 +12,12 @@ namespace LAB_APP.API.Controllers
     public class EscolaController : ControllerBase
     {
         private readonly IEscolaService _escolaService;
+        private readonly IExcelService _excelService;
 
-        public EscolaController(IEscolaService escolaService)
+        public EscolaController(IEscolaService escolaService, IExcelService excelService)
         {
             _escolaService = escolaService;
+            _excelService = excelService;
         }
         [HttpGet]
         public IActionResult GetAll()
@@ -38,6 +40,21 @@ namespace LAB_APP.API.Controllers
 
             return Ok(escola);
         }
+        [HttpPost("upload-excel")]
+        public async Task<IActionResult> UploadExcel(string filePath)
+        {
+            var escolas = _excelService.ReadDataFromExcel($"{filePath}.xlsx");
+
+            foreach (var escola in escolas)
+            {
+                await _escolaService.CreateAsync(escola);
+            }
+
+            return Ok("Informações extraidas"); 
+        }
+
+
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -53,7 +70,7 @@ namespace LAB_APP.API.Controllers
             var escola = await _escolaService.GetById(id);
 
             if (escola is null) return NotFound($"Escola com ID {id} não encontrada.");
-             
+
             escola.Nome = escolaViewModel.Nome;
             escola.Email = escolaViewModel.Email;
             escola.NumeroDeSalas = escolaViewModel.NumeroDeSalas;
