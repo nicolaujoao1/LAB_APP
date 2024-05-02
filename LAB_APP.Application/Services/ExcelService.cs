@@ -1,4 +1,5 @@
-﻿using LAB_APP.Application.DTOs;
+﻿using ClosedXML.Excel;
+using LAB_APP.Application.DTOs;
 using OfficeOpenXml;
 
 namespace LAB_APP.Application.Services
@@ -7,22 +8,23 @@ namespace LAB_APP.Application.Services
     {
         public List<EscolaDTO> ReadDataFromExcel(string filePath)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
             var escolas = new List<EscolaDTO>();
 
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            using (var workbook = new XLWorkbook(filePath))
             {
-                var worksheet = package.Workbook.Worksheets[0];
+                var worksheet = workbook.Worksheet(1);
 
-                for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+                if (worksheet.LastRowUsed() is null) return escolas;
+
+
+                for (int row = 2; row <= worksheet.LastRowUsed().RowNumber(); row++)
                 {
                     var escola = new EscolaDTO
                     {
-                        Nome = worksheet.Cells[row, 1].Value?.ToString(),
-                        Email = worksheet.Cells[row, 2].Value?.ToString(),
-                        NumeroDeSalas = Convert.ToInt32(worksheet.Cells[row, 3].Value?.ToString()),
-                        Provincia = worksheet.Cells[row, 4].Value?.ToString()
+                        Nome = worksheet.Cell(row, 1).Value.ToString(),
+                        Email = worksheet.Cell(row, 2).Value.ToString(),
+                        NumeroDeSalas = Convert.ToInt32(worksheet.Cell(row, 3).Value.ToString()),
+                        Provincia = worksheet.Cell(row, 4).Value.ToString()
                     };
 
                     escolas.Add(escola);

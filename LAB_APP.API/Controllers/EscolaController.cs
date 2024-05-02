@@ -92,7 +92,7 @@ namespace LAB_APP.API.Controllers
         ///     
         /// O parâmetro 'filePath' deve ser o caminho do arquivo Excel a ser carregado, sem a extensão '.xlsx'.
         /// </remarks>
-        /// <param name="filePath">Caminho do arquivo Excel (sem extensão)</param>
+        /// <param name="filePath">Caminho do arquivo Excel (sem extensão).Ex: C:\LAB_APP\Book2</param>
         /// <returns>Mensagem de sucesso</returns>
         [HttpPost("upload-excel")]
         [ProducesResponseType(200)]
@@ -103,15 +103,27 @@ namespace LAB_APP.API.Controllers
             {
                 return BadRequest("Caminho do arquivo Excel não especificado.");
             }
+            if (!System.IO.File.Exists($"{filePath}.xlsx"))
+            {
+                return BadRequest("Arquivo Excel não encontrado.");
+            }
 
             var escolas = _excelService.ReadDataFromExcel($"{filePath}.xlsx");
 
-            foreach (var escola in escolas)
+            if (escolas.Any())
             {
-                await _escolaService.CreateAsync(escola);
+                foreach (var escola in escolas)
+                {
+                    await _escolaService.CreateAsync(escola);
+                }
+
+                return Ok("Informações extraídas e inseridas com sucesso.");
+            }
+            else
+            {
+                return Ok("O seu ficheiro excel não possui dados!!");
             }
 
-            return Ok("Informações extraídas e inseridas com sucesso.");
         }
 
 
