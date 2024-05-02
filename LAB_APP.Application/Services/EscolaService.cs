@@ -38,9 +38,9 @@ namespace LAB_APP.Application.Services
 
         public async Task<EscolaDTO> GetById(int id)
         {
-           var escola= await _repository.GetById(id);
+            var escola = await _repository.GetById(id);
 
-            return escola.FromModel();
+            return escola is null ? new EscolaDTO() : escola.FromModel();
         }
 
         public async Task<EscolaDTO> UpdateAsync(EscolaDTO escolaDTO)

@@ -29,7 +29,7 @@ namespace LAB_APP.API.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var escola = await _escolaService.GetById(id);
-            return escola is null ? NotFound() : Ok(escola);
+            return string.IsNullOrEmpty(escola.Nome) ? NotFound($"Escola com Id={id} inexistente!") : Ok(escola);
         }
         [HttpPost]
         public async Task<IActionResult> Post(EscolaViewModel escolaViewModel)
@@ -50,7 +50,7 @@ namespace LAB_APP.API.Controllers
                 await _escolaService.CreateAsync(escola);
             }
 
-            return Ok("Informações extraidas"); 
+            return Ok("Informações extraidas");
         }
 
 
@@ -59,8 +59,17 @@ namespace LAB_APP.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var escola = await _escolaService.GetById(id);
-            escola = await _escolaService.DeleteAsync(escola);
-            return Ok(escola);
+
+            if (!string.IsNullOrEmpty(escola.Nome))
+            {
+                escola = await _escolaService.DeleteAsync(escola);
+
+                return Ok(escola);
+            }
+            else
+            {
+                return NotFound($"Escola com Id={id} inexistente, não é possivel deletar!");
+            }
         }
         [HttpPut]
         public async Task<IActionResult> Put(int id, EscolaViewModel escolaViewModel)

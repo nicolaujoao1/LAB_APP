@@ -26,8 +26,13 @@ namespace LAB_APP.Data.Repositories
 
         public async Task<TEntity> DeleteAsync(TEntity entity)
         {
-            data.Remove(entity);
-            await _context.Commit();
+            var existingEntity = await _context.Set<TEntity>().FindAsync(entity.Id);
+            if (existingEntity != null)
+            {
+                _context.Entry(existingEntity).State = EntityState.Detached;
+                _context.Set<TEntity>().Remove(existingEntity);
+                await _context.Commit();
+            }
             return entity;
         }
 
@@ -43,9 +48,14 @@ namespace LAB_APP.Data.Repositories
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
         {
-            data.Update(entity);
+            var existingEntity = await _context.Set<TEntity>().FindAsync(entity.Id);
+            if (existingEntity != null)
+            {
+                _context.Entry(existingEntity).State = EntityState.Detached;
+            }
 
-             await _context.Commit();
+            data.Update(entity);
+            await _context.Commit();
 
             return entity;
         }
