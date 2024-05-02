@@ -2,7 +2,7 @@
 # Define a imagem base
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 8085
+EXPOSE 8081
 
 # Define a imagem para build
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
@@ -22,10 +22,14 @@ WORKDIR "/src/LAB_APP.API"
 RUN dotnet build "LAB_APP.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "LAB_APP.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "LAB_APP.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Define a imagem final
 FROM base AS final
+ENV ASPNETCORE_URLS="http://+:8081"
+ENV ASPNETCORE_ENVIRONMENT="Development"
+
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "LAB_APP.API.dll"]

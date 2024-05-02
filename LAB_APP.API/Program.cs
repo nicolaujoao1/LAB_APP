@@ -28,7 +28,7 @@ builder.Services.AddServices();
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
 //options.UseNpgsql(conn)
-options.UseInMemoryDatabase(conn)
+  options.UseInMemoryDatabase(conn)
 );
 
 
@@ -45,7 +45,7 @@ if (app.Environment.IsDevelopment())
 }
 //app.MigrationInitialisation();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
