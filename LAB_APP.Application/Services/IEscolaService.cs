@@ -4,7 +4,7 @@ namespace LAB_APP.Application.Services
 {
     public interface IEscolaService
     {
-        IEnumerable<EscolaDTO> GetAll();
+        IEnumerable<EscolaDTO> GetAll(int pageNumber, int pageSize);
         Task<EscolaDTO> GetById(int id);
         Task<EscolaDTO> CreateAsync(EscolaDTO escolaDTO);
         Task<EscolaDTO> UpdateAsync(EscolaDTO escolaDTO);

@@ -44,13 +44,13 @@ namespace LAB_APP.Data.Repositories
 
         public async Task<Provincia> GetProvinceByCapitalNameAsync(string capital)
         {
-            var provincia = await _context.Provincias.FirstOrDefaultAsync(c => c.Capital.Equals(capital));
+            var provincia = await _context.Provincias.FirstOrDefaultAsync(c => c.Capital.ToLower().Equals(capital.ToLower()));
             return provincia;
         }
 
         public async Task<Provincia> GetProvinceByNameAsync(string name)
         {
-            var provincia = await _context.Provincias.FirstOrDefaultAsync(c => c.Nome.Equals(name));
+            var provincia = await _context.Provincias.FirstOrDefaultAsync(c => c.Nome.ToLower().Equals(name.ToLower()));
             return provincia;
         }
     }

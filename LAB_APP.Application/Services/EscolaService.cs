@@ -29,9 +29,15 @@ namespace LAB_APP.Application.Services
             return escola.FromModel();
         }
 
-        public IEnumerable<EscolaDTO> GetAll()
+        public IEnumerable<EscolaDTO> GetAll(int pageNumber, int pageSize)
         {
-            var escolas = _repository.GetAll();
+            var skipAmount = (pageNumber - 1) * pageSize;
+
+            var escolas = _repository.GetAll()
+                                     .OrderBy(c=>c.Id)
+                                     .Skip(skipAmount)
+                                     .Take(pageSize)
+                                     .ToList();
 
             return escolas.Select(e => e.FromModel());
         }

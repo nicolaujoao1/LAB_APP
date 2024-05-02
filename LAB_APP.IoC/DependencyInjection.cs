@@ -2,6 +2,7 @@
 using LAB_APP.Data.Repositories;
 using LAB_APP.Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 namespace LAB_APP.IoC
 {
@@ -24,6 +25,13 @@ namespace LAB_APP.IoC
             services.AddScoped<IExcelService, ExcelService>();
 
             return services;
+        }
+        public static void ConfigSwaggerGen(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "LAB API", Version = "v1" });
+            });
         }
     }
 }
