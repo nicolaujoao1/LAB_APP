@@ -12,6 +12,7 @@ namespace LAB_APP.IoC
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IEscolaRepository, EscolaRepository>();
+            services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
             return services;
         } 
         
@@ -19,6 +20,7 @@ namespace LAB_APP.IoC
         {
 
             services.AddScoped<IEscolaService, EscolaService>();
+            services.AddScoped<IProvinciaService, ProvinciaService>();
             services.AddScoped<IExcelService, ExcelService>();
 
             return services;

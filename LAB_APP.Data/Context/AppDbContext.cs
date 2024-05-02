@@ -7,6 +7,7 @@ namespace LAB_APP.Data.Context
     public class AppDbContext : DbContext, IUnitOfWork
     {
         public DbSet<Escola>? Escolas { get; set; }
+        public DbSet<Provincia>? Provincias { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
