@@ -15,15 +15,18 @@ namespace LAB_APP.API.Controllers
     {
         private readonly IEscolaService _escolaService;
         private readonly IExcelService _excelService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="escolaService"></param>
         /// <param name="excelService"></param>
-        public EscolaController(IEscolaService escolaService, IExcelService excelService)
+        /// <param name="webHostEnvironment"></param>
+        public EscolaController(IEscolaService escolaService, IExcelService excelService, IWebHostEnvironment webHostEnvironment)
         {
             _escolaService = escolaService;
             _excelService = excelService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -83,45 +86,46 @@ namespace LAB_APP.API.Controllers
 
 
         /// <summary>
-        /// Fazer upload de um arquivo Excel contendo dados das escolas e os insere no banco de dados.
+        /// Faz upload de um arquivo Excel contendo dados das escolas e os insere no banco de dados.
         /// </summary>
         /// <remarks>
         /// Exemplo de requisição:
         /// 
-        ///     POST api/escola/upload-excel?filePath=caminho/do/arquivo
-        ///     
-        /// O parâmetro 'filePath' deve ser o caminho do arquivo Excel a ser carregado, sem a extensão '.xlsx'.
+        ///     POST api/escola/upload-excel
+        ///     Formato do arquivo: multipart/form-data
+        ///     Parâmetros:
+        ///     - file: Arquivo Excel (.xlsx) contendo dados das escolas
         /// </remarks>
-        /// <param name="filePath">Caminho do arquivo Excel (sem extensão).Ex: C:\LAB_APP\Book2</param>
-        /// <returns>Mensagem de sucesso</returns>
+        /// <param name="file">Arquivo Excel a ser carregado</param>
+        /// <returns>Uma mensagem de sucesso ou falha</returns>
         [HttpPost("upload-excel")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> UploadExcel(string filePath)
+        [DisableRequestSizeLimit]
+        [ProducesResponseType(200, Type = typeof(string))]
+        [ProducesResponseType(400, Type = typeof(string))]
+        public async Task<IActionResult> UploadExcel(IFormFile file)
         {
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return BadRequest("Caminho do arquivo Excel não especificado.");
-            }
-            if (!System.IO.File.Exists($"{filePath}.xlsx"))
-            {
-                return BadRequest("Arquivo Excel não encontrado.");
-            }
+            ValidationFile(file);
 
-            var escolas = _excelService.ReadDataFromExcel($"{filePath}.xlsx");
-
-            if (escolas.Any())
+            using (var memoryStream = new MemoryStream())
             {
-                foreach (var escola in escolas)
+                await file.CopyToAsync(memoryStream);
+                var byteArray = memoryStream.ToArray();
+
+                var escolas = _excelService.ReadDataFromExcel(byteArray);
+
+                if (escolas.Any())
                 {
-                    await _escolaService.CreateAsync(escola);
-                }
+                    foreach (var escola in escolas)
+                    {
+                        await _escolaService.CreateAsync(escola);
+                    }
 
-                return Ok("Informações extraídas e inseridas com sucesso.");
-            }
-            else
-            {
-                return Ok("O seu ficheiro excel não possui dados!!");
+                    return Ok("Informações extraídas e inseridas com sucesso.");
+                }
+                else
+                {
+                    return Ok("O seu ficheiro excel não possui dados!!");
+                }
             }
 
         }
@@ -179,6 +183,19 @@ namespace LAB_APP.API.Controllers
             escola = await _escolaService.UpdateAsync(escola);
 
             return Ok(escola);
+        }
+
+        private object ValidationFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Nenhum arquivo Excel selecionado.");
+            }
+            if (!file.ContentType.StartsWith("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            {
+                return BadRequest("Formato de arquivo inválido. Selecione um arquivo Excel (.xlsx).");
+            }
+            return file;
         }
 
     }
